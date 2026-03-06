@@ -3,155 +3,204 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Blomdetektorn – Erik (Klass Aranäs)</title>
+  <title>Neon Blomdetektor – Ditt Namn (Klass X)</title>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root {
-      --primary: #6d4c41;
-      --primary-light: #a1887f;
-      --accent: #e91e63;
-      --accent-light: #f06292;
-      --bg: #fdfaf7;
-      --card: #ffffff;
-      --text: #3d2b1f;
-      --gray: #6b7280;
-      --green: #4ade80;
-      --yellow: #fbbf24;
-      --red: #f87171;
+      --neon-pink:   #ff00aa;
+      --neon-cyan:   #00f0ff;
+      --neon-lime:   #39ff14;
+      --neon-magenta:#ff2eff;
+      --neon-purple: #b300ff;
+      --bg-dark:     #0d001a;
+      --bg-mid:      #140028;
+      --card:        rgba(20, 0, 40, 0.75);
+      --text:        #f0f0ff;
+      --glow:        0 0 15px;
+      --glow-strong: 0 0 25px;
     }
 
     * { margin:0; padding:0; box-sizing:border-box; }
 
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(135deg, #fffaf0 0%, #fdfaf7 100%);
+      background: linear-gradient(135deg, #0d001a 0%, #1a0033 50%, #0d001a 100%);
       color: var(--text);
       min-height: 100vh;
-      padding: 20px 15px 60px;
+      padding: 25px 15px 70px;
       background-image: 
-        radial-gradient(circle at 10% 20%, rgba(233,30,99,0.04) 0%, transparent 20%),
-        radial-gradient(circle at 90% 80%, rgba(109,76,65,0.05) 0%, transparent 25%);
+        radial-gradient(circle at 15% 25%, rgba(255,0,170,0.12) 0%, transparent 30%),
+        radial-gradient(circle at 85% 75%, rgba(0,240,255,0.10) 0%, transparent 35%);
     }
 
-    .container { max-width: 860px; margin: 0 auto; }
+    .container { max-width: 900px; margin: 0 auto; }
 
-    header { text-align: center; margin-bottom: 2.5rem; }
+    header { text-align: center; margin: 1.5rem 0 3rem; }
 
     h1 {
-      font-size: 2.6rem;
-      color: var(--primary);
-      margin-bottom: 0.4rem;
-      font-weight: 700;
-      text-shadow: 0 2px 10px rgba(109,76,65,0.12);
+      font-size: 3rem;
+      background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan), var(--neon-lime));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 800;
+      text-shadow: var(--glow) var(--neon-pink), var(--glow-strong) var(--neon-cyan);
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
     }
 
-    .subtitle { color: var(--gray); font-size: 1.15rem; margin-bottom: 0.8rem; }
+    .subtitle {
+      color: var(--neon-cyan);
+      font-size: 1.3rem;
+      text-shadow: var(--glow) var(--neon-cyan);
+      margin-bottom: 0.6rem;
+    }
 
-    .your-name { font-weight: 600; color: var(--accent); }
+    .your-name {
+      color: var(--neon-lime);
+      font-weight: 700;
+      font-size: 1.25rem;
+      text-shadow: var(--glow) var(--neon-lime);
+    }
 
     #status {
-      padding: 1rem 1.5rem;
-      border-radius: 12px;
-      margin: 1.5rem 0;
-      font-weight: 600;
+      padding: 1.2rem 2rem;
+      border-radius: 16px;
+      margin: 1.8rem 0;
+      font-weight: 700;
       text-align: center;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-      background: white;
-      border-left: 6px solid var(--primary-light);
-      transition: all 0.3s;
+      background: var(--card);
+      border: 2px solid var(--neon-magenta);
+      box-shadow: var(--glow-strong) var(--neon-magenta);
+      backdrop-filter: blur(6px);
+      transition: all 0.4s;
     }
 
-    #status.loading { border-left-color: var(--yellow); background: #fffbeb; }
-    #status.ready   { border-left-color: var(--green);  background: #f0fdf4; }
-    #status.error   { border-left-color: var(--red);    background: #fef2f2; }
+    #status.loading {
+      border-color: var(--neon-lime);
+      box-shadow: var(--glow-strong) var(--neon-lime);
+      color: var(--neon-lime);
+    }
+
+    #status.ready {
+      border-color: var(--neon-cyan);
+      box-shadow: var(--glow-strong) var(--neon-cyan);
+      color: var(--neon-cyan);
+    }
+
+    #status.error {
+      border-color: #ff3366;
+      box-shadow: var(--glow-strong) #ff3366;
+      color: #ff99cc;
+    }
 
     .upload-area {
-      background: white;
-      border: 3px dashed var(--primary-light);
-      border-radius: 16px;
-      padding: 2.5rem 1.5rem;
+      background: var(--card);
+      border: 3px dashed var(--neon-pink);
+      border-radius: 20px;
+      padding: 3rem 1.5rem;
       text-align: center;
-      transition: all 0.25s;
+      transition: all 0.3s;
       cursor: pointer;
-      margin: 1.5rem 0;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+      margin: 2rem 0;
+      box-shadow: var(--glow) var(--neon-pink);
+      backdrop-filter: blur(8px);
     }
 
     .upload-area:hover {
-      border-color: var(--accent);
-      background: #fff5f9;
-      transform: translateY(-3px);
+      border-color: var(--neon-cyan);
+      box-shadow: var(--glow-strong) var(--neon-cyan);
+      transform: scale(1.02);
     }
 
-    .upload-area i { font-size: 3.2rem; color: var(--accent); margin-bottom: 1rem; }
+    .upload-area i {
+      font-size: 4rem;
+      color: var(--neon-magenta);
+      margin-bottom: 1.2rem;
+      text-shadow: var(--glow) var(--neon-magenta);
+    }
 
     #preview {
       max-width: 100%;
-      max-height: 420px;
-      border-radius: 16px;
-      margin: 1.8rem auto 1.2rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-      border: 1px solid #eee;
+      max-height: 440px;
+      border-radius: 20px;
+      margin: 2rem auto 1.5rem;
+      box-shadow: var(--glow-strong) var(--neon-purple), inset 0 0 20px rgba(255,0,170,0.15);
+      border: 2px solid var(--neon-purple);
       display: block;
       object-fit: contain;
-      background: white;
+      background: rgba(0,0,0,0.4);
     }
 
     button#predictBtn {
-      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+      background: linear-gradient(90deg, var(--neon-pink), var(--neon-magenta), var(--neon-cyan));
+      background-size: 200% 200%;
+      animation: gradientFlow 6s ease infinite;
       color: white;
       border: none;
-      padding: 1rem 2.4rem;
-      font-size: 1.18rem;
-      font-weight: 600;
-      border-radius: 50px;
+      padding: 1.2rem 3rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+      border-radius: 60px;
       cursor: pointer;
-      margin: 1.5rem auto;
+      margin: 2rem auto;
       display: block;
-      box-shadow: 0 6px 20px rgba(233,30,99,0.28);
-      transition: all 0.25s;
+      box-shadow: var(--glow-strong) var(--neon-pink);
+      text-shadow: 0 0 10px black;
+      transition: all 0.3s;
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     button#predictBtn:hover:not(:disabled) {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 30px rgba(233,30,99,0.4);
+      transform: scale(1.08);
+      box-shadow: var(--glow-strong) var(--neon-cyan), 0 0 40px var(--neon-magenta);
     }
 
     button#predictBtn:disabled {
-      background: #d1d5db;
+      background: #444;
       box-shadow: none;
+      opacity: 0.6;
       cursor: not-allowed;
     }
 
     #result {
-      background: white;
-      border-radius: 16px;
-      padding: 2rem;
-      margin: 2rem 0;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-      font-size: 1.35rem;
+      background: var(--card);
+      border-radius: 20px;
+      padding: 2.2rem;
+      margin: 2.5rem 0;
+      box-shadow: var(--glow-strong) var(--neon-lime);
+      font-size: 1.5rem;
       line-height: 1.5;
-      min-height: 120px;
+      backdrop-filter: blur(10px);
+      border: 2px solid var(--neon-lime);
+      min-height: 140px;
     }
 
-    .confidence-high   { color: var(--green);  font-weight: 700; }
-    .confidence-medium { color: var(--yellow); font-weight: 700; }
-    .confidence-low    { color: var(--red);    font-weight: 700; }
+    .confidence-high   { color: var(--neon-lime);   text-shadow: var(--glow) var(--neon-lime); }
+    .confidence-medium { color: var(--neon-yellow); text-shadow: var(--glow) var(--neon-yellow); }
+    .confidence-low    { color: #ff66cc;            text-shadow: var(--glow) #ff66cc; }
 
-    .flower-emoji { font-size: 1.6em; margin-right: 0.4em; }
+    .flower-emoji { font-size: 2rem; margin-right: 0.5rem; }
 
     footer {
       text-align: center;
-      margin-top: 4rem;
-      color: var(--gray);
-      font-size: 0.95rem;
+      margin-top: 5rem;
+      color: var(--neon-cyan);
+      font-size: 1rem;
+      text-shadow: var(--glow) var(--neon-cyan);
+      opacity: 0.8;
     }
 
     @media (max-width: 560px) {
-      h1 { font-size: 2.1rem; }
-      .upload-area { padding: 2rem 1rem; }
-      button#predictBtn { padding: 0.9rem 2rem; font-size: 1.05rem; }
+      h1 { font-size: 2.4rem; }
+      .upload-area { padding: 2.5rem 1rem; }
+      button#predictBtn { padding: 1rem 2.5rem; font-size: 1.15rem; }
     }
   </style>
 </head>
@@ -159,9 +208,9 @@
 
   <div class="container">
     <header>
-      <h1>Blomdetektorn 🌸</h1>
+      <h1>Neon Blomdetektor 🌸⚡️</h1>
       <div class="subtitle">
-        Träna din telefon att känna igen blommor med AI
+        AI som lyser upp dina blommor
       </div>
       <div class="your-name">
         Ditt Förnamn Efternamn – Klass X
@@ -169,29 +218,29 @@
     </header>
 
     <div id="status" class="loading">
-      <i class="fas fa-spinner fa-spin"></i> Laddar blommodellen...
+      <i class="fas fa-spinner fa-spin"></i> Laddar neon-modellen...
     </div>
 
     <label for="imageUpload">
       <div class="upload-area" id="dropArea">
         <i class="fas fa-cloud-upload-alt"></i>
-        <p>Klicka här eller dra en bild hit</p>
-        <small>(jpg, png, webp – max ~8 MB rekommenderas)</small>
+        <p>Släpp en blomma hit eller klicka</p>
+        <small>jpg • png • webp</small>
       </div>
     </label>
 
     <input type="file" id="imageUpload" accept="image/*" hidden>
 
-    <img id="preview" src="" alt="Din uppladdade blomma" style="display:none;">
+    <img id="preview" src="" alt="Din neon-blomma" style="display:none;">
 
     <button id="predictBtn" disabled>
-      <i class="fas fa-search"></i> Identifiera blomman
+      <i class="fas fa-bolt"></i> Analysera i neon
     </button>
 
     <div id="result"></div>
 
     <footer>
-      Powered by TensorFlow.js • MobileNetV2 • Skapad för skolarbete våren 2026
+      TensorFlow.js × MobileNetV2 × Neon Vibes • Skolprojekt 2026
     </footer>
   </div>
 
@@ -205,21 +254,19 @@
 
     let model = null;
 
-    // Ladda modellen
     async function loadModel() {
       try {
         model = await tf.loadLayersModel('./tfjs_model/model.json');
-        status.innerHTML = '<i class="fas fa-check-circle"></i> Modellen är klar! Ladda upp en blomma.';
+        status.innerHTML = '<i class="fas fa-check-circle"></i> Neon-modellen är laddad!';
         status.className = 'ready';
         predictBtn.disabled = false;
       } catch (err) {
-        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Kunde inte ladda modellen…';
+        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Fel vid laddning...';
         status.className = 'error';
         console.error(err);
       }
     }
 
-    // Visa förhandsvisning
     function showPreview(file) {
       if (!file) return;
       const reader = new FileReader();
@@ -233,17 +280,16 @@
 
     imageUpload.addEventListener('change', e => showPreview(e.target.files[0]));
 
-    // Drag & drop
     ['dragover', 'dragenter'].forEach(evt => dropArea.addEventListener(evt, e => {
       e.preventDefault();
-      dropArea.style.borderColor = 'var(--accent)';
-      dropArea.style.background = '#fff5f9';
+      dropArea.style.borderColor = 'var(--neon-cyan)';
+      dropArea.style.boxShadow = 'var(--glow-strong) var(--neon-cyan)';
     }));
 
     ['dragleave', 'drop'].forEach(evt => dropArea.addEventListener(evt, e => {
       e.preventDefault();
-      dropArea.style.borderColor = 'var(--primary-light)';
-      dropArea.style.background = 'white';
+      dropArea.style.borderColor = 'var(--neon-pink)';
+      dropArea.style.boxShadow = 'var(--glow) var(--neon-pink)';
     }));
 
     dropArea.addEventListener('drop', e => {
@@ -254,11 +300,10 @@
       }
     });
 
-    // Förutsägelse
     predictBtn.addEventListener('click', async () => {
       if (!model || !preview.src) return;
 
-      status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyserar blomman...';
+      status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Neon-analys pågår...';
       resultDiv.innerHTML = '';
 
       try {
@@ -282,48 +327,47 @@
         }
 
         const classNames = [
-          "Präskage",   // index 0
+          "Präskage",   // 0
           "Maskros",    // 1
           "Roser",      // 2
           "solros",     // 3
           "tulpan"      // 4
         ];
 
-        const predicted = classNames[maxIdx] || "Okänd";
+        const predicted = classNames[maxIdx] || "Okänd art";
         const conf = (maxProb * 100).toFixed(1);
-        let cls = "", emoji = "🌼";
+        let cls = "", emoji = "🌸";
 
         if (maxProb >= 0.75) {
           cls = "confidence-high";
-          emoji = "🌹";
+          emoji = "🌺⚡️";
         } else if (maxProb >= 0.50) {
           cls = "confidence-medium";
-          emoji = "🌻";
+          emoji = "🌻✨";
         } else {
           cls = "confidence-low";
-          emoji = "❓";
+          emoji = "❓💥";
         }
 
         resultDiv.innerHTML = `
           <div class="${cls}">
             <span class="flower-emoji">${emoji}</span>
             <strong>${predicted}</strong><br>
-            Sannolikhet ${conf} %
+            ${conf} % säkerhet
           </div>
         `;
 
         tensor.dispose();
         logits.dispose();
 
-        status.innerHTML = '<i class="fas fa-check-circle"></i> Klar!';
+        status.innerHTML = '<i class="fas fa-bolt"></i> Neon-resultat klart!';
       } catch (err) {
-        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Något gick fel…';
+        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Något kortslöt...';
         status.className = 'error';
         console.error(err);
       }
     });
 
-    // Start
     loadModel();
   </script>
 </body>
