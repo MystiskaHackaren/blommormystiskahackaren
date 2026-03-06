@@ -3,81 +3,197 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Blomigenkänning – Erik (Na Aranäs)</title>
+  <title>Blomdetektorn – Erik (Klass Aranäs)</title>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
+    :root {
+      --primary: #6d4c41;
+      --primary-light: #a1887f;
+      --accent: #e91e63;
+      --accent-light: #f06292;
+      --bg: #fdfaf7;
+      --card: #ffffff;
+      --text: #3d2b1f;
+      --gray: #6b7280;
+      --green: #4ade80;
+      --yellow: #fbbf24;
+      --red: #f87171;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
     body {
-      font-family: Arial, Helvetica, sans-serif;
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 0 15px;
-      background: #f9f9f9;
-      color: #333;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #fffaf0 0%, #fdfaf7 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px 15px 60px;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(233,30,99,0.04) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(109,76,65,0.05) 0%, transparent 25%);
     }
-    h1 { color: #1a5f7a; text-align: center; }
-    .info { text-align: center; font-size: 1.1em; margin-bottom: 25px; }
+
+    .container { max-width: 860px; margin: 0 auto; }
+
+    header { text-align: center; margin-bottom: 2.5rem; }
+
+    h1 {
+      font-size: 2.6rem;
+      color: var(--primary);
+      margin-bottom: 0.4rem;
+      font-weight: 700;
+      text-shadow: 0 2px 10px rgba(109,76,65,0.12);
+    }
+
+    .subtitle { color: var(--gray); font-size: 1.15rem; margin-bottom: 0.8rem; }
+
+    .your-name { font-weight: 600; color: var(--accent); }
+
     #status {
-      font-weight: bold;
-      padding: 12px;
-      border-radius: 6px;
-      margin: 20px 0;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      margin: 1.5rem 0;
+      font-weight: 600;
       text-align: center;
-      min-height: 24px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+      background: white;
+      border-left: 6px solid var(--primary-light);
+      transition: all 0.3s;
     }
-    #status.loading { background: #fff3cd; color: #856404; }
-    #status.ready   { background: #d4edda; color: #155724; }
-    #status.error   { background: #f8d7da; color: #721c24; }
-    .container { text-align: center; }
-    img#preview {
+
+    #status.loading { border-left-color: var(--yellow); background: #fffbeb; }
+    #status.ready   { border-left-color: var(--green);  background: #f0fdf4; }
+    #status.error   { border-left-color: var(--red);    background: #fef2f2; }
+
+    .upload-area {
+      background: white;
+      border: 3px dashed var(--primary-light);
+      border-radius: 16px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      transition: all 0.25s;
+      cursor: pointer;
+      margin: 1.5rem 0;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+    }
+
+    .upload-area:hover {
+      border-color: var(--accent);
+      background: #fff5f9;
+      transform: translateY(-3px);
+    }
+
+    .upload-area i { font-size: 3.2rem; color: var(--accent); margin-bottom: 1rem; }
+
+    #preview {
       max-width: 100%;
-      max-height: 380px;
-      border: 3px solid #ddd;
-      border-radius: 8px;
-      margin: 20px auto;
+      max-height: 420px;
+      border-radius: 16px;
+      margin: 1.8rem auto 1.2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      border: 1px solid #eee;
       display: block;
+      object-fit: contain;
+      background: white;
     }
-    input[type="file"] { margin: 20px 0; }
-    button {
-      background: #1a5f7a;
+
+    button#predictBtn {
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
       color: white;
       border: none;
-      padding: 12px 28px;
-      font-size: 1.1em;
-      border-radius: 6px;
+      padding: 1rem 2.4rem;
+      font-size: 1.18rem;
+      font-weight: 600;
+      border-radius: 50px;
       cursor: pointer;
-      margin: 15px 0;
+      margin: 1.5rem auto;
+      display: block;
+      box-shadow: 0 6px 20px rgba(233,30,99,0.28);
+      transition: all 0.25s;
     }
-    button:disabled { background: #aaa; cursor: not-allowed; }
+
+    button#predictBtn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(233,30,99,0.4);
+    }
+
+    button#predictBtn:disabled {
+      background: #d1d5db;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
     #result {
-      font-size: 1.4em;
-      margin: 30px 0;
-      padding: 20px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      min-height: 80px;
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 2rem 0;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      font-size: 1.35rem;
+      line-height: 1.5;
+      min-height: 120px;
     }
-    .high { color: #28a745; font-weight: bold; }
-    .medium { color: #fd7e14; font-weight: bold; }
-    .low { color: #dc3545; font-weight: bold; }
+
+    .confidence-high   { color: var(--green);  font-weight: 700; }
+    .confidence-medium { color: var(--yellow); font-weight: 700; }
+    .confidence-low    { color: var(--red);    font-weight: 700; }
+
+    .flower-emoji { font-size: 1.6em; margin-right: 0.4em; }
+
+    footer {
+      text-align: center;
+      margin-top: 4rem;
+      color: var(--gray);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 560px) {
+      h1 { font-size: 2.1rem; }
+      .upload-area { padding: 2rem 1rem; }
+      button#predictBtn { padding: 0.9rem 2rem; font-size: 1.05rem; }
+    }
   </style>
 </head>
 <body>
 
-  <h1>Blomigenkänning med TensorFlow.js</h1>
-  <p class="info"><strong>Ditt Förnamn Efternamn – Klass X</strong><br>(MobileNetV2 finjusterad på 5 blomarter)</p>
-
-  <div id="status" class="loading">Laddar modell… (kan ta 10–40 sek första gången)</div>
-
   <div class="container">
-    <input type="file" id="imageUpload" accept="image/*">
-    <br>
-    <img id="preview" src="" alt="" style="display:none;">
-    <br>
-    <button id="predictBtn" disabled>Förutsäg blomma</button>
-  </div>
+    <header>
+      <h1>Blomdetektorn 🌸</h1>
+      <div class="subtitle">
+        Träna din telefon att känna igen blommor med AI
+      </div>
+      <div class="your-name">
+        Ditt Förnamn Efternamn – Klass X
+      </div>
+    </header>
 
-  <div id="result"></div>
+    <div id="status" class="loading">
+      <i class="fas fa-spinner fa-spin"></i> Laddar blommodellen...
+    </div>
+
+    <label for="imageUpload">
+      <div class="upload-area" id="dropArea">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Klicka här eller dra en bild hit</p>
+        <small>(jpg, png, webp – max ~8 MB rekommenderas)</small>
+      </div>
+    </label>
+
+    <input type="file" id="imageUpload" accept="image/*" hidden>
+
+    <img id="preview" src="" alt="Din uppladdade blomma" style="display:none;">
+
+    <button id="predictBtn" disabled>
+      <i class="fas fa-search"></i> Identifiera blomman
+    </button>
+
+    <div id="result"></div>
+
+    <footer>
+      Powered by TensorFlow.js • MobileNetV2 • Skapad för skolarbete våren 2026
+    </footer>
+  </div>
 
   <script>
     const status = document.getElementById('status');
@@ -85,112 +201,130 @@
     const imageUpload = document.getElementById('imageUpload');
     const preview = document.getElementById('preview');
     const resultDiv = document.getElementById('result');
+    const dropArea = document.getElementById('dropArea');
 
     let model = null;
 
     // Ladda modellen
     async function loadModel() {
       try {
-        status.textContent = "Laddar MobileNetV2-modell från tfjs_model/...";
-        status.className = "loading";
-
         model = await tf.loadLayersModel('./tfjs_model/model.json');
-
-        status.textContent = "Modellen är laddad och klar!";
-        status.className = "ready";
+        status.innerHTML = '<i class="fas fa-check-circle"></i> Modellen är klar! Ladda upp en blomma.';
+        status.className = 'ready';
         predictBtn.disabled = false;
       } catch (err) {
-        status.textContent = "Kunde inte ladda modellen: " + err.message;
-        status.className = "error";
+        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Kunde inte ladda modellen…';
+        status.className = 'error';
         console.error(err);
       }
     }
 
-    // Visa förhandsgranskning av bilden
-    imageUpload.addEventListener('change', e => {
-      const file = e.target.files[0];
+    // Visa förhandsvisning
+    function showPreview(file) {
       if (!file) return;
-
       const reader = new FileReader();
-      reader.onload = ev => {
-        preview.src = ev.target.result;
+      reader.onload = e => {
+        preview.src = e.target.result;
         preview.style.display = 'block';
-        resultDiv.innerHTML = ''; // rensa tidigare resultat
+        resultDiv.innerHTML = '';
       };
       reader.readAsDataURL(file);
+    }
+
+    imageUpload.addEventListener('change', e => showPreview(e.target.files[0]));
+
+    // Drag & drop
+    ['dragover', 'dragenter'].forEach(evt => dropArea.addEventListener(evt, e => {
+      e.preventDefault();
+      dropArea.style.borderColor = 'var(--accent)';
+      dropArea.style.background = '#fff5f9';
+    }));
+
+    ['dragleave', 'drop'].forEach(evt => dropArea.addEventListener(evt, e => {
+      e.preventDefault();
+      dropArea.style.borderColor = 'var(--primary-light)';
+      dropArea.style.background = 'white';
+    }));
+
+    dropArea.addEventListener('drop', e => {
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        imageUpload.files = e.dataTransfer.files;
+        showPreview(file);
+      }
     });
 
-    // Förutsägelse när man klickar på knappen
+    // Förutsägelse
     predictBtn.addEventListener('click', async () => {
-      if (!model) return alert("Modellen har inte laddats än.");
-      if (!preview.src) return alert("Ladda upp en bild först!");
+      if (!model || !preview.src) return;
 
-      status.textContent = "Analyserar bilden...";
-      resultDiv.innerHTML = "";
+      status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyserar blomman...';
+      resultDiv.innerHTML = '';
 
       try {
-        // Läs bild → tensor
-        const imgElement = document.getElementById('preview');
-        let tensor = tf.browser.fromPixels(imgElement)
+        const img = document.getElementById('preview');
+        let tensor = tf.browser.fromPixels(img)
           .resizeNearestNeighbor([224, 224])
           .toFloat()
-          .expandDims(0);  // → [1, 224, 224, 3]
+          .expandDims(0);
 
-        // MobileNetV2-förbehandling: skala till [-1, 1]
         tensor = tensor.div(127.5).sub(1.0);
 
-        // Kör modellen (ger logits)
         const logits = model.predict(tensor);
-        const probabilities = await logits.softmax().data();
+        const probs = await logits.softmax().data();
 
-        // Hitta högsta sannolikheten
-        let maxProb = -1;
-        let maxIdx = -1;
-        for (let i = 0; i < probabilities.length; i++) {
-          if (probabilities[i] > maxProb) {
-            maxProb = probabilities[i];
+        let maxProb = -Infinity, maxIdx = -1;
+        for (let i = 0; i < probs.length; i++) {
+          if (probs[i] > maxProb) {
+            maxProb = probs[i];
             maxIdx = i;
           }
         }
 
-        // Dina 5 klasser – byt ut mot dina riktiga namn och rätt ordning!
         const classNames = [
-          "Präskage",      // index 0
-          "Maskros",       // 1
+          "Präskage",   // index 0
+          "Maskros",    // 1
           "Roser",      // 2
-          "solros",  // 3
+          "solros",     // 3
           "tulpan"      // 4
         ];
 
-        const predictedClass = classNames[maxIdx] || "Okänd klass";
-        const confidence = (maxProb * 100).toFixed(1);
-
-        let confidenceText = `Sannolikhet: <strong>${confidence} %</strong>`;
-        let classText = `Blomma: <strong>${predictedClass}</strong>`;
+        const predicted = classNames[maxIdx] || "Okänd";
+        const conf = (maxProb * 100).toFixed(1);
+        let cls = "", emoji = "🌼";
 
         if (maxProb >= 0.75) {
-          resultDiv.innerHTML = `<span class="high">${classText}<br>${confidenceText}</span>`;
+          cls = "confidence-high";
+          emoji = "🌹";
         } else if (maxProb >= 0.50) {
-          resultDiv.innerHTML = `<span class="medium">${classText}<br>${confidenceText} (osäker)</span>`;
+          cls = "confidence-medium";
+          emoji = "🌻";
         } else {
-          resultDiv.innerHTML = `<span class="low">${classText}<br>${confidenceText} (mycket osäker – kanske inte en av de tränade arterna)</span>`;
+          cls = "confidence-low";
+          emoji = "❓";
         }
 
-        // Städa minne
+        resultDiv.innerHTML = `
+          <div class="${cls}">
+            <span class="flower-emoji">${emoji}</span>
+            <strong>${predicted}</strong><br>
+            Sannolikhet ${conf} %
+          </div>
+        `;
+
         tensor.dispose();
         logits.dispose();
 
-        status.textContent = "Färdig!";
+        status.innerHTML = '<i class="fas fa-check-circle"></i> Klar!';
       } catch (err) {
-        status.textContent = "Fel vid förutsägelse: " + err.message;
-        status.className = "error";
+        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Något gick fel…';
+        status.className = 'error';
         console.error(err);
       }
     });
 
-    // Starta laddning direkt när sidan öppnas
+    // Start
     loadModel();
   </script>
-
 </body>
 </html>
